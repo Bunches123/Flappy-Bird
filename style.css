@@ -1,0 +1,45 @@
+:root {
+  --bg-1: #70d6ff;
+  --bg-2: #9be7ff;
+  --ground: #d7b35d;
+  --grass: #7ccf5b;
+  --pipe: #6ecf67;
+  --pipe-dark: #3ea24a;
+  --bird: #ffd54d;
+  --bird-wing: #ffb61e;
+  --text: #1b2d40;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 70%);
+}
+
+body {
+  display: grid;
+  place-items: center;
+}
+
+.game-shell {
+  border: 6px solid rgba(24, 59, 84, 0.8);
+  border-radius: 18px;
+  box-shadow: 0 18px 35px rgba(18, 35, 52, 0.24);
+  overflow: hidden;
+  background: #8fe0ff;
+}
+
+canvas {
+  display: block;
+  width: min(92vw, 420px);
+  height: auto;
+  background: linear-gradient(180deg, #8fe0ff 0%, #bff2ff 100%);
+}
