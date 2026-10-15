@@ -7,16 +7,17 @@ const GROUND_HEIGHT = 82;
 const GROUND_Y = HEIGHT - GROUND_HEIGHT;
 const GRAVITY = 0.42;
 const FLAP_FORCE = -7.2;
-const BASE_PIPE_SPEED = 2.4;
-const BASE_PIPE_GAP = 150;
+const BASE_PIPE_SPEED = 2;
+const BASE_PIPE_GAP = 170;
 const BASE_PIPE_WIDTH = 70;
 const BASE_PIPE_INTERVAL = 1500;
 const ECLIPSE_SCORE_INTERVAL = 10;
 const ECLIPSE_DURATION = 9000;
+const ECLIPSE_ACTIVATION_DURATION = 1400;
 const ECLIPSE_RECOVERY_DURATION = 3500;
-const ECLIPSE_PACE_MULTIPLIER = 1.2;
+const ECLIPSE_PACE_MULTIPLIER = 0.9;
 const RECOVERY_PACE_MULTIPLIER = 0.86;
-const ECLIPSE_BEAT_INTERVAL = 280;
+const ECLIPSE_BEAT_INTERVAL = 360;
 const ECLIPSE_FLASH_DURATION = 320;
 
 let audioCtx = null;
@@ -106,6 +107,7 @@ const state = {
   eclipse: false,
   eclipseStrength: 0,
   eclipseFlash: 0,
+  eclipseActivationRemaining: 0,
   eclipseRemaining: 0,
   eclipseRecoveryRemaining: 0,
   nextEclipseScore: ECLIPSE_SCORE_INTERVAL,
@@ -208,12 +210,13 @@ function playEclipseBeat() {
 
 function startEclipse() {
   state.eclipse = true;
+  state.eclipseActivationRemaining = ECLIPSE_ACTIVATION_DURATION;
   state.eclipseRemaining = ECLIPSE_DURATION;
   state.eclipseRecoveryRemaining = 0;
   state.eclipseFlash = ECLIPSE_FLASH_DURATION;
-  state.eclipseBeatRemaining = 0;
+  state.eclipseBeatRemaining = ECLIPSE_BEAT_INTERVAL;
   state.eclipseBeatIndex = 0;
-  state.shake = Math.max(state.shake, 2.2);
+  state.shake = Math.max(state.shake, 7);
   state.moon.x = -state.moon.radius;
   state.moon.y = state.sun.y;
   playEclipseBeat();
@@ -324,6 +327,7 @@ function resetGame() {
   state.eclipse = false;
   state.eclipseStrength = 0;
   state.eclipseFlash = 0;
+  state.eclipseActivationRemaining = 0;
   state.eclipseRemaining = 0;
   state.eclipseRecoveryRemaining = 0;
   state.nextEclipseScore = ECLIPSE_SCORE_INTERVAL;
@@ -345,6 +349,7 @@ function startGame() {
     state.eclipse = false;
     state.eclipseStrength = 0;
     state.eclipseFlash = 0;
+    state.eclipseActivationRemaining = 0;
     state.eclipseRemaining = 0;
     state.eclipseRecoveryRemaining = 0;
     state.nextEclipseScore = ECLIPSE_SCORE_INTERVAL;
@@ -383,13 +388,12 @@ function flap() {
 }
 
 function getDifficultySettings() {
-  const scoreFactor = Math.min(18, state.score * 0.55);
-  const baseBoost = 1 + scoreFactor * 0.06 + state.elapsed / 100000;
-  const eclipseBoost = state.eclipse ? 1.18 : 1;
-  const speed = BASE_PIPE_SPEED * baseBoost * eclipseBoost;
-  const gap = Math.max(126, BASE_PIPE_GAP - state.score * 1.1 - (state.eclipse ? 18 : 0));
-  const interval = Math.max(1080, BASE_PIPE_INTERVAL / baseBoost / (state.eclipse ? 1.08 : 1));
-  const gravity = GRAVITY * (1 + state.score * 0.007 + (state.eclipse ? 0.12 : 0));
+  const scoreFactor = Math.min(12, state.score * 0.35);
+  const baseBoost = 1 + scoreFactor * 0.04 + state.elapsed / 160000;
+  const speed = BASE_PIPE_SPEED * baseBoost;
+  const gap = Math.max(150, BASE_PIPE_GAP - state.score * 0.65);
+  const interval = Math.max(1250, BASE_PIPE_INTERVAL / baseBoost);
+  const gravity = GRAVITY * (1 + state.score * 0.004);
 
   return { speed, gap, interval, gravity };
 }
@@ -415,7 +419,11 @@ function updateSky(delta) {
 
   if (state.mode === 'playing') {
     if (state.eclipse) {
-      state.eclipseRemaining = Math.max(0, state.eclipseRemaining - delta);
+      if (state.eclipseActivationRemaining > 0) {
+        state.eclipseActivationRemaining = Math.max(0, state.eclipseActivationRemaining - delta);
+      } else {
+        state.eclipseRemaining = Math.max(0, state.eclipseRemaining - delta);
+      }
       state.eclipseBeatRemaining -= delta;
       if (state.eclipseBeatRemaining <= 0) {
         playEclipseBeat();
@@ -447,7 +455,9 @@ function updateSky(delta) {
     0,
     1 - distance / (state.sun.radius + state.moon.radius)
   );
-  const targetShake = state.eclipse ? 1.6 : state.eclipseRecoveryRemaining > 0 ? 0.6 : 0;
+  const targetShake = state.eclipseActivationRemaining > 0
+    ? 7
+    : state.eclipse ? 1.6 : state.eclipseRecoveryRemaining > 0 ? 0.6 : 0;
   state.shake += (targetShake - state.shake) * Math.min(1, delta * 0.008);
 }
 
@@ -484,6 +494,11 @@ function intersectsPipe(pipe, bird) {
 }
 
 function update(delta) {
+  if (state.mode === 'playing' && state.eclipseActivationRemaining > 0) {
+    updateSky(delta);
+    return;
+  }
+
   state.cloudOffset += delta * 0.02;
   state.groundOffset += delta * 0.12;
   state.startFlash = Math.max(0, state.startFlash - delta / 280);
@@ -518,6 +533,10 @@ function update(delta) {
         startEclipse();
       }
     }
+  }
+
+  if (state.eclipseActivationRemaining > 0) {
+    return;
   }
 
   state.pipes = state.pipes.filter((pipe) => pipe.x + pipe.width > -20);
@@ -717,6 +736,22 @@ function render() {
   if (state.eclipse) {
     ctx.fillStyle = 'rgba(205, 24, 42, 0.32)';
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  }
+  if (state.eclipseActivationRemaining > 0) {
+    const activationElapsed = ECLIPSE_ACTIVATION_DURATION - state.eclipseActivationRemaining;
+    const flash = 0.5 + 0.5 * Math.sin(activationElapsed * 0.025);
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 25px Arial';
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(80, 0, 12, 0.92)';
+    ctx.strokeText('ECLIPSE ACTIVATED', WIDTH / 2, HEIGHT * 0.43);
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.45 + flash * 0.55})`;
+    ctx.shadowColor = '#ffb3bb';
+    ctx.shadowBlur = 8 + flash * 14;
+    ctx.fillText('ECLIPSE ACTIVATED', WIDTH / 2, HEIGHT * 0.43);
+    ctx.restore();
   }
   if (state.eclipseFlash > 0) {
     ctx.fillStyle = `rgba(255, 255, 255, ${0.45 * state.eclipseFlash / ECLIPSE_FLASH_DURATION})`;
