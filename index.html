@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flappy Bird</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="game-shell">
+      <canvas id="gameCanvas" width="420" height="640" aria-label="Flappy Bird game area"></canvas>
+      <div class="round-actions" id="roundActions" hidden>
+        <button class="button button-primary" id="returnToMenu" type="button">
+          <span aria-hidden="true">⌂</span> MAIN MENU
+        </button>
+      </div>
+      <main class="menu-ui" id="menu" aria-label="Game menu">
+        <header class="menu-header">
+          <a class="brand" href="#" data-page="home" aria-label="Flappy Sky home">
+            <span class="brand-mark" aria-hidden="true">✦</span>
+            <span>FLAPPY <strong>SKY</strong></span>
+          </a>
+          <span class="menu-tag">ECLIPSE EDITION</span>
+        </header>
+
+        <section class="menu-page home-page" data-menu-page="home" aria-labelledby="homeTitle">
+          <div class="hero-bird" id="heroBird" aria-hidden="true">
+            <span class="bird-preview-eye"></span>
+            <span class="bird-preview-wing"></span>
+            <span class="bird-preview-beak"></span>
+          </div>
+          <p class="eyebrow">YOUR NEXT HIGH SCORE STARTS HERE</p>
+          <h1 id="homeTitle">Take to the <span>sky.</span></h1>
+          <p class="hero-copy">Flap through the pipes. Stay ahead of the eclipse.</p>
+          <button class="button button-primary play-button" id="playButton" type="button">
+            <span>PLAY NOW</span><span aria-hidden="true">→</span>
+          </button>
+          <div class="player-card">
+            <span class="player-avatar" id="playerAvatar" aria-hidden="true">P</span>
+            <label for="playerName">PLAYER NAME</label>
+            <input id="playerName" type="text" maxlength="16" value="Player" autocomplete="nickname" />
+          </div>
+          <div class="home-links" aria-label="More options">
+            <button class="button button-secondary" type="button" data-page="skins">
+              <span class="nav-icon" aria-hidden="true">✦</span>
+              <span><strong>Bird skins</strong><small>Pick your look</small></span>
+              <span class="nav-arrow" aria-hidden="true">›</span>
+            </button>
+            <button class="button button-secondary" type="button" data-page="leaderboard">
+              <span class="nav-icon trophy-icon" aria-hidden="true">♛</span>
+              <span><strong>Leaderboard</strong><small>Chase your best</small></span>
+              <span class="nav-arrow" aria-hidden="true">›</span>
+            </button>
+          </div>
+          <button class="text-button how-link" type="button" data-page="how-to-play">How to play</button>
+        </section>
+
+        <section class="menu-page sub-page" data-menu-page="skins" aria-labelledby="skinsTitle" hidden>
+          <button class="back-button" type="button" data-page="home"><span aria-hidden="true">←</span> MAIN MENU</button>
+          <p class="eyebrow">MAKE IT YOURS</p>
+          <h1 id="skinsTitle">Choose your <span>bird.</span></h1>
+          <p class="page-copy">Every flight deserves a little personality.</p>
+          <div class="skin-grid" id="skinGrid" aria-label="Bird skin choices"></div>
+          <p class="selection-note" id="skinNote" aria-live="polite"></p>
+          <button class="button button-primary page-cta" type="button" data-page="home">LOOKS GOOD <span aria-hidden="true">→</span></button>
+        </section>
+
+        <section class="menu-page sub-page" data-menu-page="leaderboard" aria-labelledby="leaderboardTitle" hidden>
+          <button class="back-button" type="button" data-page="home"><span aria-hidden="true">←</span> MAIN MENU</button>
+          <p class="eyebrow">ALL-TIME BESTS · THIS BROWSER</p>
+          <h1 id="leaderboardTitle">Hall of <span>flight.</span></h1>
+          <p class="page-copy">Top scores played on this computer.</p>
+          <ol class="leaderboard-list" id="leaderboardList"></ol>
+          <p class="empty-leaderboard" id="emptyLeaderboard">Your first flight is waiting. Can you set the record?</p>
+          <p class="storage-notice" id="storageNotice" role="status" aria-live="polite"></p>
+          <button class="button button-primary page-cta" type="button" data-page="home">BACK TO MENU <span aria-hidden="true">→</span></button>
+        </section>
+
+        <section class="menu-page sub-page how-page" data-menu-page="how-to-play" aria-labelledby="howTitle" hidden>
+          <button class="back-button" type="button" data-page="home"><span aria-hidden="true">←</span> MAIN MENU</button>
+          <p class="eyebrow">ONE BUTTON. ENDLESS SKY.</p>
+          <h1 id="howTitle">Ready, <span>flap?</span></h1>
+          <div class="tip-list">
+            <p><span class="tip-icon">↑</span><span><strong>Tap to fly</strong><small>Press Space, ↑, or tap the screen to flap.</small></span></p>
+            <p><span class="tip-icon">Ⅱ</span><span><strong>Thread the pipes</strong><small>Keep your bird in the gap. Don't hit the pipes or ground.</small></span></p>
+            <p><span class="tip-icon">☾</span><span><strong>Watch the eclipse</strong><small>The sky gets tougher as the eclipse draws near.</small></span></p>
+          </div>
+          <button class="button button-primary page-cta" type="button" data-play>LET'S FLY <span aria-hidden="true">→</span></button>
+        </section>
+
+        <footer class="menu-footer">
+          <span><i class="status-dot"></i> READY FOR TAKEOFF</span>
+          <span>FLAP · FLY · REPEAT</span>
+        </footer>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
