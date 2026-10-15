@@ -14,9 +14,9 @@ const BASE_PIPE_INTERVAL = 1500;
 const ECLIPSE_SCORE_INTERVAL = 10;
 const ECLIPSE_DURATION = 9000;
 const ECLIPSE_RECOVERY_DURATION = 3500;
-const ECLIPSE_PACE_MULTIPLIER = 1.45;
+const ECLIPSE_PACE_MULTIPLIER = 1.2;
 const RECOVERY_PACE_MULTIPLIER = 0.86;
-const ECLIPSE_BEAT_INTERVAL = 188;
+const ECLIPSE_BEAT_INTERVAL = 280;
 const ECLIPSE_FLASH_DURATION = 320;
 
 let audioCtx = null;
@@ -714,6 +714,10 @@ function render() {
   drawGround();
   drawBird();
   drawHud();
+  if (state.eclipse) {
+    ctx.fillStyle = 'rgba(205, 24, 42, 0.32)';
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  }
   if (state.eclipseFlash > 0) {
     ctx.fillStyle = `rgba(255, 255, 255, ${0.45 * state.eclipseFlash / ECLIPSE_FLASH_DURATION})`;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
